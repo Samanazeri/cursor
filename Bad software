@@ -1,0 +1,99 @@
+# filename: accounting_old.py
+# تاریخ: 1402/10/15 - نویسنده: توسعه‌دهنده تیم حسابداری
+
+class HesabdarSystem:
+    def __init__(self):
+        self.karmandan = []
+        self.mahaleh_hoghoogh = []
+        self.log_ha = []
+    
+    def ezafe_kardan_karmand(self, esm, hoghoogh_asli, saat_kar, saat_ezafe, darsad_maliat, hazineh=0):
+        # این تابع همه کار میکنه - یه کمی شلوغه ولی کار میکنه
+        try:
+            # محاسبه حقوق پایه
+            hoghoogh_paye = hoghoogh_asli * saat_kar / 160
+            
+            # اضافه کاری
+            if saat_ezafe > 0:
+                hoghoogh_ezafe = (hoghoogh_asli / 160) * 1.5 * saat_ezafe
+            else:
+                hoghoogh_ezafe = 0
+            
+            # جمع کل ناخالص
+            kol_nakhales = hoghoogh_paye + hoghoogh_ezafe + hazineh
+            
+            # مالیات
+            maliat = kol_nakhales * darsad_maliat
+            
+            # حقوق خالص
+            hoghoogh_khaless = kol_nakhales - maliat
+            
+            # ذخیره اطلاعات
+            karmand_info = {
+                'esm': esm,
+                'nakhales': kol_nakhales,
+                'maliat': maliat, 
+                'khaless': hoghoogh_khaless,
+                'tarikh': '1402/10/15'
+            }
+            
+            self.karmandan.append(karmand_info)
+            self.log_ha.append(f"کارمند {esm} اضافه شد")
+            
+            return karmand_info
+            
+        except Exception as e:
+            print(f"خطا در محاسبه: {e}")
+            return None
+    
+    def gereport_hoghoogh(self):
+        # گزارش ساده
+        print("=== گزارش حقوق این ماه ===")
+        
+        kol_nakhales = 0
+        kol_maliat = 0
+        kol_khaless = 0
+        
+        for karmand in self.karmandan:
+            print(f"{karmand['esm']}: {karmand['khaless']:,.0f} تومان")
+            kol_nakhales += karmand['nakhales']
+            kol_maliat += karmand['maliat'] 
+            kol_khaless += karmand['khaless']
+        
+        print("\n--- جمع کل ---")
+        print(f"ناخالص: {kol_nakhales:,.0f} تومان")
+        print(f"مالیات: {kol_maliat:,.0f} تومان")
+        print(f"خالص: {kol_khaless:,.0f} تومان")
+        
+        return kol_khaless
+    
+    def mahaleh_kardan(self, esm, mablagh, tozih=""):
+        # کسر از حقوق - همینجا پیاده‌سازی میشه
+        for karmand in self.karmandan:
+            if karmand['esm'] == esm:
+                karmand['khaless'] -= mablagh
+                self.mahaleh_hoghoogh.append({
+                    'esm': esm,
+                    'mablagh': mablagh,
+                    'tozih': tozih
+                })
+                print(f"مبلغ {mablagh:,.0f} از {esm} کسر شد")
+                return True
+        print("کارمند پیدا نشد!")
+        return False
+
+# استفاده در دنیای واقعی
+print(" سیستم حسابداری قدیمی - نسخه 1.0")
+
+system = HesabdarSystem()
+
+# اضافه کردن کارمندها - پارامترهای زیاد!
+system.ezafe_kardan_karmand("علی رضایی", 50_000_000, 160, 10, 0.1, 1_000_000)
+system.ezafe_kardan_karmand("مریم حسینی", 45_000_000, 160, 5, 0.08, 500_000)
+system.ezafe_kardan_karmand("حسن محمدی", 40_000_000, 120, 0, 0.05, 0)  # پاره وقت
+
+# کسر بیمه
+system.mahaleh_kardan("علی رضایی", 500_000, "بیمه تامین اجتماعی")
+
+# گزارش
+system.gereport_hoghoogh()
